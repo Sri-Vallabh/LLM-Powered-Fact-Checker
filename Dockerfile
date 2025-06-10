@@ -11,6 +11,7 @@ RUN mkdir -p /data/hf_cache/transformers /data/hf_cache/datasets /data/hf_cache/
 
 # Ensure /app is writable
 RUN chmod -R 777 /app
+RUN mkdir -p /app/chroma_db && chmod -R 777 /app/chroma_db
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt

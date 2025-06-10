@@ -7,7 +7,7 @@ import gc
 import csv
 
 # === CONFIGURATION ===
-CHROMA_PATH = "chroma_db"
+CHROMA_PATH = "app/chroma_db"
 COLLECTION_NAME = "pib_titles"
 
 def save_titles_to_csv(titles, filename="pib_titles.csv"):
