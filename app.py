@@ -83,6 +83,7 @@ def main():
     max-width: 100% !important;
     padding-left: 1rem !important;
     padding-right: 1rem !important;
+     text-align: center;
 }
 
 /* Remove default margins on main content to reduce gaps */
