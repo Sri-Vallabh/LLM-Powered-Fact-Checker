@@ -1,7 +1,5 @@
-# Use an official Python runtime as a parent image
 FROM python:3.11-slim
 
-# Set the working directory in the container
 WORKDIR /app
 
 ENV HF_HOME=/data/hf_cache
@@ -11,18 +9,16 @@ ENV HF_HUB_CACHE=/data/hf_cache/hub
 
 RUN mkdir -p /data/hf_cache/transformers /data/hf_cache/datasets /data/hf_cache/hub && chmod -R 777 /data/hf_cache
 
-# Copy requirements.txt and install dependencies
+# Ensure /app is writable
+RUN chmod -R 777 /app
+
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of your app's code
 COPY . .
 
-# Make entrypoint script executable
 RUN chmod +x /app/entrypoint.sh
 
-# Expose the port Streamlit runs on
 EXPOSE 8501
 
-# Use the entrypoint script to run all scripts in order, then launch Streamlit
 ENTRYPOINT ["/app/entrypoint.sh"]
