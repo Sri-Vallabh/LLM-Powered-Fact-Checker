@@ -47,7 +47,7 @@ def robust_json_extractor(response_content):
 
 class FactChecker:
     def __init__(self, chroma_path, collection_name, groq_client):
-        self.client = chromadb.PersistentClient(path=chroma_path)
+        self.client = chromadb.Client()
         self.collection = self.client.get_collection(
             name=collection_name,
             embedding_function=embedding_functions.SentenceTransformerEmbeddingFunction(
