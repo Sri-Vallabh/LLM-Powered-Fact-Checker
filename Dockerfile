@@ -1,8 +1,5 @@
-
-
 # Use an official Python runtime as a parent image
 FROM python:3.11-slim
-
 
 # Set the working directory in the container
 WORKDIR /app
@@ -21,8 +18,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of your app's code
 COPY . .
 
+# Make entrypoint script executable
+RUN chmod +x /app/entrypoint.sh
+
 # Expose the port Streamlit runs on
 EXPOSE 8501
 
-# Run Streamlit
-CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+# Use the entrypoint script to run all scripts in order, then launch Streamlit
+ENTRYPOINT ["/app/entrypoint.sh"]
