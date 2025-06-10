@@ -5,6 +5,8 @@ import os
 from dotenv import load_dotenv
 import csv
 from datetime import datetime
+import pandas as pd
+import random
 
 load_dotenv()
 
@@ -55,6 +57,15 @@ def main():
         st.session_state.result = None
 
     claim = st.text_area("Enter a claim to verify:", height=150)
+    try:
+        df = pd.read_csv("data/pib_titles.csv")
+        if not df.empty:
+            sample_claims = df.sample(2)
+            st.markdown("### 🧪 Example Claims from Dataset:")
+            for idx, row in sample_claims.iterrows():
+                st.markdown(f"- {row[0]}")
+    except Exception as e:
+        st.warning(f"Could not load example claims: {e}")
     confidence_threshold = st.slider("Confidence Threshold", 0.0, 1.0, 0.5, 0.05)
 
     if st.button("Verify Claim"):
