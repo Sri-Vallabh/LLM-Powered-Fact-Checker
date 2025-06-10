@@ -134,16 +134,8 @@ streamlit run app.py
 - Feedback is logged in `feedback_log.csv`.
 - Contributions, bug reports, and feature requests are welcome! Please open an issue or pull request.
 
----
-
-## License
-
-MIT License
 
 ---
 
-**Built with ❤️ by [Your Name/Team]**
+**Built with ❤️ by Sri Vallabh Tammireddy**
 
----
-
-Feel free to customize the repo URL, author, or any section as needed!
