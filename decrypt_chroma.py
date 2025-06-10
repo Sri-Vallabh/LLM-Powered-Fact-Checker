@@ -1,7 +1,7 @@
 import os
 from cryptography.fernet import Fernet
 
-KEY_FILE = "chroma_key.key"
+KEY_FILE = "app/chroma_key.key"
 CHROMA_PATH = "app/chroma_db"
 
 def decrypt_chroma_files():
