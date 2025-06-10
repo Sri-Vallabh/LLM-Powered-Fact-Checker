@@ -8,7 +8,7 @@ from datetime import datetime
 
 load_dotenv()
 
-def store_feedback_csv(claim, result, feedback, csv_file="feedback_log.csv"):
+def store_feedback_csv(claim, result, feedback, csv_file="data/feedback_log.csv"):
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     row = [
         now,
