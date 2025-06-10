@@ -34,7 +34,7 @@ def store_feedback_csv(claim, result, feedback, csv_file="feedback_log.csv"):
 
 def initialize_services():
     return FactChecker(
-        chroma_path="chroma_db",
+        chroma_path="./chroma_db",
         collection_name="pib_titles",
         groq_client=OpenAI(
             api_key=os.getenv("GROQ_API_KEY"),
