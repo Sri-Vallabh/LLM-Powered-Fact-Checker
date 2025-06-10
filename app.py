@@ -45,7 +45,24 @@ def initialize_services():
     )
 
 def main():
-    st.title("🔍 Fact Checker")
+    # Add sticky title using HTML and CSS
+    st.markdown("""
+<style>
+.sticky-title {
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    background: white;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #f0f0f0;
+}
+</style>
+<div class="sticky-title">
+    <h1>🔍 Fact Checker</h1>
+</div>
+""", unsafe_allow_html=True)
     checker = initialize_services()
 
     # Initialize session state variables
@@ -56,74 +73,163 @@ def main():
     if "result" not in st.session_state:
         st.session_state.result = None
 
-    claim = st.text_area("Enter a claim to verify:", height=150)
-    try:
-        df = pd.read_csv("data/pib_titles.csv")
-        if not df.empty:
-            sample_claims = df.sample(2)
-            st.markdown("### 🧪 Example Claims from Dataset:")
-            for idx, row in sample_claims.iterrows():
-                st.markdown(f"- {row[0]}")
-    except Exception as e:
-        st.warning(f"Could not load example claims: {e}")
-    confidence_threshold = st.slider("Confidence Threshold", 0.0, 1.0, 0.5, 0.05)
+    # --- Custom CSS for wider columns and better visuals ---
+    st.markdown("""
+<style>
+/* Reduce max-width and remove side paddings/margins for full width */
+.block-container {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    max-width: 100% !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+}
 
-    if st.button("Verify Claim"):
-        if not claim.strip():
-            st.error("Please enter a claim to verify")
-            return
+/* Remove default margins on main content to reduce gaps */
+main > div {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
 
-        with st.spinner("Analyzing..."):
-            # Store result in session state
-            st.session_state.result = checker.verify_claim(claim, confidence_threshold)
-            st.session_state.last_claim = claim
-            st.session_state.feedback_submitted = False  # Reset feedback state for new claim
+/* Stretch columns fully */
+.css-1kyxreq, .css-1r6slb0 {
+    width: 100% !important;
+}
 
-    # Display results from session state
-    if st.session_state.result:
-        result = st.session_state.result
-        if "error" in result:
-            st.error(f"Error: {result['error']}")
-            if "raw_response" in result:
-                with st.expander("Show raw LLM response"):
-                    st.code(result["raw_response"])
-        else:
-            # Display verdict
-            verdict_color = {
-                "True": "green",
-                "False": "red",
-                "Unverifiable": "orange"
-            }.get(result["verdict"], "gray")
-            st.markdown(f"**Verdict:** :{verdict_color}[{result['verdict']}]")
-            
-            # Display confidence score
-            st.metric("Confidence Score", f"{result.get('confidence', 0):.2f}")
-            
-            # Display evidence
-            with st.expander("View Supporting Evidence"):
-                for idx, evidence in enumerate(result.get("evidence", []), 1):
-                    st.markdown(f"{idx}. {evidence}")
-            
-            # Display reasoning
-            st.markdown("**Analysis:**")
-            st.write(result.get("reasoning", "No reasoning provided"))
+/* Style the DataFrame container for full width */
+.stDataFrame {
+    background: #f9f9f9 !important;
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
+    padding: 0.5rem;
+    width: 100% !important;
+}
 
-        # Feedback system
-        feedback_key = f"feedback_radio_{st.session_state.last_claim}"
-        if not st.session_state.feedback_submitted:
-            feedback = st.radio(
-                "Was this analysis helpful?",
-                ["", "👍 Yes", "👎 No"],
-                horizontal=True,
-                key=feedback_key
-            )
+/* Style input area */
+textarea, input[type="text"] {
+    border: 2px solid #4CAF50 !important;
+    border-radius: 6px !important;
+    font-size: 1.1rem !important;
+    background: #f4f8fc !important;
+    width: 100% !important;
+}
+
+/* Style buttons */
+button[kind="primary"] {
+    background: #4CAF50 !important;
+    color: white !important;
+    border-radius: 6px !important;
+    font-weight: bold !important;
+}
+
+/* Style scrollbars for DataFrame */
+::-webkit-scrollbar {
+    width: 8px;
+    background: #f0f0f0;
+}
+::-webkit-scrollbar-thumb {
+    background: #bdbdbd;
+    border-radius: 4px;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
+    # --- Layout ---
+    spacer_col, left_col, right_col ,right_space= st.columns([1,9, 7,1], gap="large")
+
+    with left_col:
+        claim = st.text_area("Enter a claim to verify:", height=150)
+        confidence_threshold = st.slider("Confidence Threshold", 0.0, 1.0, 0.5, 0.05)
+
+        if st.button("Verify Claim"):
+            if not claim.strip():
+                st.error("Please enter a claim to verify")
+                return
+
+            with st.spinner("Analyzing..."):
+                # Store result in session state
+                st.session_state.result = checker.verify_claim(claim, confidence_threshold)
+                st.session_state.last_claim = claim
+                st.session_state.feedback_submitted = False  # Reset feedback state for new claim
+
+        # Display results from session state
+        if st.session_state.result:
+            result = st.session_state.result
+            if "error" in result:
+                st.error(f"Error: {result['error']}")
+                if "raw_response" in result:
+                    with st.expander("Show raw LLM response"):
+                        st.code(result["raw_response"])
+            else:
+                # Display verdict
+                verdict_color = {
+                    "True": "green",
+                    "False": "red",
+                    "Unverifiable": "orange"
+                }.get(result["verdict"], "gray")
+                st.markdown(f"**Verdict:** :{verdict_color}[{result['verdict']}]")
+                
+                # Display confidence score
+                st.metric("Confidence Score", f"{result.get('confidence', 0):.2f}")
+                
+                # Display evidence
+                with st.expander("View Supporting Evidence"):
+                    for idx, evidence in enumerate(result.get("evidence", []), 1):
+                        st.markdown(f"{idx}. {evidence}")
+                
+                # Display reasoning
+                st.markdown("**Analysis:**")
+                st.write(result.get("reasoning", "No reasoning provided"))
+
+            # Feedback system
+            feedback_key = f"feedback_radio_{st.session_state.last_claim}"
+            if not st.session_state.feedback_submitted:
+                feedback = st.radio(
+                    "Was this analysis helpful?",
+                    ["", "👍 Yes", "👎 No"],
+                    horizontal=True,
+                    key=feedback_key
+                )
+                
+                if feedback:
+                    store_feedback_csv(st.session_state.last_claim, result, feedback)
+                    st.session_state.feedback_submitted = True
+                    st.rerun()  # Use st.rerun() instead of experimental_rerun()
+            else:
+                st.success("Thank you for your feedback! Your input helps improve the system.")
+
+    with right_col:
+        
+        st.markdown("### 📋 All Claims")
+        try:
+            df = pd.read_csv("data/pib_titles.csv")["title"].to_frame()
+            if not df.empty:
+                st.markdown("""
+<style>
+.scrollable-cell {
+    overflow-x: auto;
+    white-space: nowrap;
+    max-width: 100%;
+    border: 1px solid #eee;
+    padding: 6px 8px;
+    font-family: monospace;
+    background: #fafafa;
+}
+</style>
+""", unsafe_allow_html=True)
+
             
-            if feedback:
-                store_feedback_csv(st.session_state.last_claim, result, feedback)
-                st.session_state.feedback_submitted = True
-                st.rerun()  # Use st.rerun() instead of experimental_rerun()
-        else:
-            st.success("Thank you for your feedback! Your input helps improve the system.")
+
+            # Render each row as a scrollable div
+            for idx, row in df.iterrows():
+                st.markdown(
+                    f'<div class="scrollable-cell">{row["title"]}</div>',
+                    unsafe_allow_html=True
+    )
+        except Exception as e:
+            st.warning(f"Unable to display full dataset: {e}")
+    
 
 
 if __name__ == "__main__":
