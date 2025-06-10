@@ -2,7 +2,7 @@ import os
 from cryptography.fernet import Fernet
 
 KEY_FILE = "chroma_key.key"
-CHROMA_PATH = "chroma_db"
+CHROMA_PATH = "app/chroma_db"
 
 def decrypt_chroma_files():
     # Load key

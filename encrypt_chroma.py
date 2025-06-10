@@ -1,8 +1,8 @@
 import os
 from cryptography.fernet import Fernet
 
-KEY_FILE = "chroma_key.key"
-CHROMA_PATH = "chroma_db"
+KEY_FILE = "app/chroma_key.key"
+CHROMA_PATH = "app/chroma_db"
 
 # Generate the key if it doesn't exist
 if not os.path.exists(KEY_FILE):
