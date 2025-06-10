@@ -43,7 +43,8 @@ def scrape_and_store():
     print(f"Fetched {len(all_titles_sources)} unique titles.")
 
     # Save to CSV
-    save_titles_to_csv(all_titles_sources, filename="pib_titles.csv")
+    save_titles_to_csv(all_titles_sources, filename="data/pib_titles.csv")
+
 
     # Prepare for ChromaDB
     documents = [title for title, source in all_titles_sources]
