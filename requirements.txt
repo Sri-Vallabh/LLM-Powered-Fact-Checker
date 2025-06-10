@@ -1,0 +1,9 @@
+requests==2.32.4
+beautifulsoup4==4.13.4
+lxml==4.9.3
+chromadb
+sentence-transformers
+cryptography
+openai
+streamlit
+python-dotenv
