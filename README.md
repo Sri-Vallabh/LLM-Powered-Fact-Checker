@@ -45,12 +45,19 @@ cd LLM-Powered-Face-Checker
 pip install -r requirements.txt
 ```
 
+
 ### 3. **Set Up Environment Variables**
+
+### 🔑 API Key Setup
+
+To use the LLM features, you'll need an API key from [Groq Console](https://console.groq.com/keys).
+Create an account (if you haven’t already), generate your key, and set it as an environment variable:
+
 
 Create a `.env` file in the root directory:
 
 ```
-GROQ_API_KEY=your-groq-api-key-here
+GROQ_API_KEY="Your groq api key here"
 ```
 
 ### 4. **Scrape PIB News and Populate ChromaDB**
