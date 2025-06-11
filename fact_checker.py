@@ -98,7 +98,7 @@ class FactChecker:
         # LLM verification with distance-aware prompt
         evidence_str = "\n".join([f"- {e}" for e in evidence])
         prompt = f""" You are a powerful fact checker. Analyze the claim below against the provided verified information. 
-Relying on the similarity scores, also carefully check whether all factual details in the claim (such as dates, names, locations, and events) exactly match the evidence. 
+Relying on the similarity scores, also carefully check whether all factual details in the claim (such as dates, names, locations, and events) exactly match atleast one of the evidence. If from first evidence, evidence is not sufficient, use the next evidence to verify the claim. 
 If there is any factual mismatch (for example, the date in the claim is different from the evidence), classify the claim as False. Any factual mismatch, even if the overall context is similar, should lead to a False classification.
 If the evidence is too vague or lacks strong matches, classify as Unverifiable.
 If evidence directly contradicts the claim, classify as False.
@@ -113,6 +113,7 @@ Evidence (with similarity scores):
 
 Guidelines:
 1. Give more weight to evidence with higher similarity scores, but do not ignore factual mismatches.
+2. If any one piece of evidence independently supports the claim, without factual mismatches, classify as True.
 2. Pay close attention to details such as dates, names, locations, and events.
 3. If the claim and evidence differ on any factual point, do not classify as True.
 4. Respond only in JSON format without any additional text.
