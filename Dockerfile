@@ -16,11 +16,13 @@ RUN mkdir -p /app/chroma_db && chmod -R 777 /app/chroma_db
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Add spaCy model download
+RUN python -m spacy download en_core_web_sm  # Critical fix [1][2]
+
 COPY . .
 
 RUN chmod +x /app/entrypoint.sh
 RUN mkdir -p /app/data && chmod -R 777 /app/data
-
 
 EXPOSE 8501
 
