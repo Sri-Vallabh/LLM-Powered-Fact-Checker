@@ -154,34 +154,81 @@ button[kind="primary"] {
                 st.session_state.last_claim = claim
                 st.session_state.feedback_submitted = False  # Reset feedback state for new claim
 
-        # Display results from session state
-        if st.session_state.result:
-            result = st.session_state.result
-            if "error" in result:
-                st.error(f"Error: {result['error']}")
-                if "raw_response" in result:
-                    with st.expander("Show raw LLM response"):
-                        st.code(result["raw_response"])
-            else:
-                # Display verdict
-                verdict_color = {
-                    "True": "green",
-                    "False": "red",
-                    "Unverifiable": "orange"
-                }.get(result["verdict"], "gray")
-                st.markdown(f"**Verdict:** :{verdict_color}[{result['verdict']}]")
-                
-                # Display confidence score
-                st.metric("Confidence Score", f"{result.get('confidence', 0):.2f}")
-                
-                # Display evidence
-                with st.expander("View Supporting Evidence"):
-                    for idx, evidence in enumerate(result.get("evidence", []), 1):
-                        st.markdown(f"{idx}. {evidence}")
-                
-                # Display reasoning
-                st.markdown("**Analysis:**")
-                st.write(result.get("reasoning", "No reasoning provided"))
+            # Display results from session state
+            if st.session_state.result:
+                result = st.session_state.result
+
+                # Show entity verification results
+                st.subheader("Entity Verification Results")
+                entities = result.get("entities", [])
+                if entities:
+                    for idx, entity_result in enumerate(entities, 1):
+                        st.markdown(f"### Entity {idx}: {entity_result.get('entity', '')} ({entity_result.get('type', '')})")
+
+                        if "error" in entity_result:
+                            st.error(f"Error: {entity_result['error']}")
+                            if "raw_response" in entity_result:
+                                with st.expander("Show raw LLM response"):
+                                    st.code(entity_result["raw_response"])
+                            continue
+
+                        verdict_color = {
+                            "Valid": "green",
+                            "Invalid": "red",
+                            "Unverified": "orange"
+                        }.get(entity_result.get("verdict", ""), "gray")
+                        st.markdown(f"**Verdict:** :{verdict_color}[{entity_result.get('verdict', 'Unknown')}]")
+
+                        # Confidence
+                        st.metric("Confidence Score", f"{entity_result.get('confidence', 0):.2f}")
+
+                        # Evidence
+                        with st.expander("View Supporting Evidence"):
+                            for i, evidence in enumerate(entity_result.get("evidence", []), 1):
+                                st.markdown(f"{i}. {evidence}")
+
+                        # Reasoning
+                        st.markdown("**Analysis:**")
+                        st.write(entity_result.get("reasoning", "No reasoning provided"))
+                else:
+                    st.write("No entities detected or verified.")
+
+                # Show claim verification results
+                st.subheader("Detected Claims and Verification Results")
+                claims = result.get("claims", [])
+                if not claims:
+                    st.info("No check-worthy claims detected in the input.")
+                else:
+                    for idx, claim_result in enumerate(claims, 1):
+                        st.markdown(f"### Claim {idx}")
+                        st.markdown(f"> {claim_result.get('claim', '')}")
+
+                        if "error" in claim_result:
+                            st.error(f"Error: {claim_result['error']}")
+                            if "raw_response" in claim_result:
+                                with st.expander("Show raw LLM response"):
+                                    st.code(claim_result["raw_response"])
+                            continue
+
+                        verdict_color = {
+                            "True": "green",
+                            "False": "red",
+                            "Unverifiable": "orange"
+                        }.get(claim_result.get("verdict", ""), "gray")
+                        st.markdown(f"**Verdict:** :{verdict_color}[{claim_result.get('verdict', 'Unknown')}]")
+
+                        # Confidence
+                        st.metric("Confidence Score", f"{claim_result.get('confidence', 0):.2f}")
+
+                        # Evidence
+                        with st.expander("View Supporting Evidence"):
+                            for i, evidence in enumerate(claim_result.get("evidence", []), 1):
+                                st.markdown(f"{i}. {evidence}")
+
+                        # Reasoning
+                        st.markdown("**Analysis:**")
+                        st.write(claim_result.get("reasoning", "No reasoning provided"))
+
 
             # Feedback system
             feedback_key = f"feedback_radio_{st.session_state.last_claim}"

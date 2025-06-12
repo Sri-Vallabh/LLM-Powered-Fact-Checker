@@ -35,6 +35,19 @@ This application revolutionizes fact-checking by leveraging cutting-edge AI tech
 
 ## 🏗️ **System Architecture**
 
+### 🔍 **Enhanced Text Processing Pipeline**
+- **spaCy NER Integration**: Identifies entities (persons, organizations, locations) using `en_core_web_sm` model[1]
+- **Claim Extraction**: Uses `Babelscape/t5-base-summarization-claim-extractor` to isolate verifiable claims[1]
+- **Multi-Stage Filtering**: Combines entity recognition with claim extraction for targeted verification
+
+## ✨ **Core Features**
+
+### 🔍 **Advanced Semantic Search**
+**Metadata Enrichment**:
+- Named Entity Recognition tags for contextual filtering
+- Claim segmentation using T5-base model
+- Hybrid retrieval combining entities and semantic similarity
+
 ![Architecture Diagram](assets/overall.png)
 
 
@@ -196,31 +209,50 @@ jobs:
 ```
 
 
+
+---
 ### **Technical Stack**
 
-| Component | Technology | Purpose |
-|-----------|------------|---------|
-| **Web Scraping** | `requests` + `BeautifulSoup` | PIB RSS feed processing |
-| **Vector Database** | `ChromaDB` + `sentence-transformers` | Semantic search & storage |
-| **LLM Integration** | `Groq API` (Llama-3-8B-8192) | Fact verification & reasoning |
-| **User Interface** | `Streamlit` | Interactive web application |
-| **Security** | `cryptography` (Fernet) | Database encryption |
-| **Containerization** | `Docker` | Production deployment |
-| **CI/CD** | `GitHub Actions` | Automated deployment |
+| Component            | Technology                                               | Purpose                                 |
+|----------------------|---------------------------------------------------------|-----------------------------------------|
+| **Web Scraping**     | `requests` + `BeautifulSoup`                            | PIB RSS feed processing                 |
+| **Entity Recognition** | `spaCy` (`en_core_web_sm`)                            | Named Entity Recognition (NER)          |
+| **Claim Extraction** | `Babelscape/t5-base-summarization-claim-extractor`      | Automatic claim segmentation/extraction |
+| **Vector Database**  | `ChromaDB` + `sentence-transformers`                    | Semantic search & storage               |
+| **LLM Integration**  | `Groq API` (Llama-3-8B-8192)                            | Fact verification & reasoning           |
+| **User Interface**   | `Streamlit`                                             | Interactive web application             |
+| **Security**         | `cryptography` (Fernet)                                 | Database encryption                     |
+| **Containerization** | `Docker`                                                | Production deployment                   |
+| **CI/CD**            | `GitHub Actions`                                        | Automated deployment                    |
+---
 
 ### **Data Flow Process**
 
 ![Process Flow](assets/flow.png)
 
-1. **Data Ingestion**: Automated scraping of PIB news sources
-2. **Vectorization**: Convert text to semantic embeddings
-3. **Storage**: Encrypted vector database with metadata
-4. **Query Processing**: User claim → semantic search
-5. **LLM Analysis**: Evidence evaluation and reasoning
-6. **Response Generation**: Structured verdict with explanations
-7. **Feedback Collection**: User validation for continuous improvement
+1. **Process FlowData Ingestion**:  
+   Automated scraping of PIB news sources using `scrape_chroma.py`.
 
----
+2. **Entity & Claim Extraction**:  
+   Extract entities from news content using spaCy NER and segment claims with the Babelscape/t5-base-summarization-claim-extractor model.
+
+3. **Vectorization**:  
+   Convert processed text (claims and entities) into semantic embeddings for efficient search.
+
+4. **Storage**:  
+   Store embeddings and metadata securely in an encrypted vector database (ChromaDB).
+
+5. **Query Processing**:  
+   User-submitted claim undergoes NER and claim extraction, followed by semantic search to retrieve the most relevant evidence.
+
+6. **LLM Analysis**:  
+   The claim and retrieved evidence are analyzed by the LLM, which provides a verdict and detailed reasoning.
+
+7. **Response Generation**:  
+   Generate a structured response with the verdict (`True`, `False`, or `Unverifiable`) and clear explanations.
+
+8. **Feedback Collection**:  
+   Collect user feedback on the verdict to enable continuous system improvement.
 
 ## 🛡️ **Security & Encryption**
 
@@ -307,6 +339,7 @@ embedding_function = SentenceTransformerEmbeddingFunction(
 
 ```python
 # Model configuration
+
 model_name = "llama3-8b-8192"
 temperature = 0.1  # Low temperature for factual responses
 max_tokens = 400   # Sufficient for structured responses
@@ -327,12 +360,18 @@ max_tokens = 400   # Sufficient for structured responses
 ## 🧠 How It Works
 
 1. **Web Scraping:**  
-   `scrape_chroma.py` fetches PIB RSS feeds, parses with BeautifulSoup, and stores unique news items and their sources in ChromaDB.
-2. **Semantic Search:**  
-   When a claim is entered, the app retrieves the most relevant evidence using vector similarity.
-3. **LLM Fact Checking:**  
-   The claim and evidence are sent to an LLM, which returns a verdict (`True`, `False`, or `Unverifiable`) and a step-by-step reasoning.
-4. **Feedback Loop:**  
+   `scrape_chroma.py` fetches PIB RSS feeds, parses them with BeautifulSoup, and stores unique news items and their sources in ChromaDB.
+
+2. **Entity and Claim Extraction:**  
+   When a claim is entered, spaCy's NER is used to identify key entities within the text. The claim is then segmented and extracted using the Babelscape/t5-base-summarization-claim-extractor model.
+
+3. **Semantic Search:**  
+   The extracted claim and identified entities are used to retrieve the most relevant evidence from ChromaDB using vector similarity.
+
+4. **LLM Fact Checking:**  
+   The processed claim and supporting evidence are sent to an LLM, which returns a verdict (`True`, `False`, or `Unverifiable`) along with step-by-step reasoning.
+
+5. **Feedback Loop:**  
    Users can rate the verdict, and all feedback is logged for future improvements.
 
 ---
