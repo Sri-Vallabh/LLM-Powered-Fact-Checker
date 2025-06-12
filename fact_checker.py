@@ -62,19 +62,19 @@ class FactChecker:
         self.ner = spacy.load("en_core_web_sm")
         
 
-        self.claim_tokenizer = T5Tokenizer.from_pretrained("Babelscape/t5-base-summarization-claim-extractor")
-        self.claim_model = T5ForConditionalGeneration.from_pretrained("Babelscape/t5-base-summarization-claim-extractor")
+        # self.claim_tokenizer = T5Tokenizer.from_pretrained("Babelscape/t5-base-summarization-claim-extractor")
+        # self.claim_model = T5ForConditionalGeneration.from_pretrained("Babelscape/t5-base-summarization-claim-extractor")
 
     def extract_entities(self, text):
         doc = self.ner(text)
         return [(ent.text, ent.label_) for ent in doc.ents]
 
     def extract_claims(self, text, threshold=0.5):
-        tok_input = self.claim_tokenizer.batch_encode_plus([text], return_tensors="pt", padding=True)
-        outputs = self.claim_model.generate(**tok_input)
-        claims = self.claim_tokenizer.batch_decode(outputs, skip_special_tokens=True)
-        claims = [claim.strip() for claim in claims if len(claim.strip()) > 0]
-        return claims
+        # tok_input = self.claim_tokenizer.batch_encode_plus([text], return_tensors="pt", padding=True)
+        # outputs = self.claim_model.generate(**tok_input)
+        # claims = self.claim_tokenizer.batch_decode(outputs, skip_special_tokens=True)
+        # claims = [claim.strip() for claim in claims if len(claim.strip()) > 0]
+        return text
 
 
     def verify_single_claim(self, claim, confidence_threshold=0.5):
@@ -106,8 +106,8 @@ class FactChecker:
             }
 
         evidence_str = "\n".join([f"- {e}" for e in evidence])
-        prompt = f"""You are a powerful fact checker. Analyze the claim below against the provided verified information. 
-Relying on the similarity scores, also carefully check whether all factual details in the claim (such as dates, names, locations, and events) exactly match the evidence. 
+        prompt = f""" You are a powerful fact checker. Analyze the claim below against the provided verified information. 
+Relying on the similarity scores, also carefully check whether all factual details in the claim (such as dates, names, locations, and events) exactly match atleast one of the evidence. If from first evidence, evidence is not sufficient, use the next evidence to verify the claim. 
 If there is any factual mismatch (for example, the date in the claim is different from the evidence), classify the claim as False. Any factual mismatch, even if the overall context is similar, should lead to a False classification.
 If the evidence is too vague or lacks strong matches, classify as Unverifiable.
 If evidence directly contradicts the claim, classify as False.
@@ -122,6 +122,7 @@ Evidence (with similarity scores):
 
 Guidelines:
 1. Give more weight to evidence with higher similarity scores, but do not ignore factual mismatches.
+2. If any one piece of evidence independently supports the claim, without factual mismatches, classify as True.
 2. Pay close attention to details such as dates, names, locations, and events.
 3. If the claim and evidence differ on any factual point, do not classify as True.
 4. Respond only in JSON format without any additional text.
