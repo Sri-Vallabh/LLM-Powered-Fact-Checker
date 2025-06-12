@@ -7,3 +7,5 @@ cryptography
 openai
 streamlit
 python-dotenv
+spacy
+transformers
