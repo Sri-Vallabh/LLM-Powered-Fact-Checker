@@ -74,7 +74,7 @@ class FactChecker:
         # outputs = self.claim_model.generate(**tok_input)
         # claims = self.claim_tokenizer.batch_decode(outputs, skip_special_tokens=True)
         # claims = [claim.strip() for claim in claims if len(claim.strip()) > 0]
-        return text
+        return [text]
 
 
     def verify_single_claim(self, claim, confidence_threshold=0.5):
